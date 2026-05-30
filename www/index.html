@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thekedar Pro Calculator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
+        body { background-color: #000; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        
+        /* THE SHAPE-SHIFTING CONTAINER */
+        .calculator { width: 330px; background: #000; padding: 20px; border-radius: 35px; border: 1px solid #333; box-shadow: 0 10px 40px rgba(0, 255, 0, 0.05); transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
+        .calculator.sci-mode { width: 450px; } /* Jab switch on hoga toh proper expand hoga */
+
+        /* THE TOGGLE SWITCH */
+        .header { display: flex; justify-content: center; margin-bottom: 25px; }
+        .toggle-btn { background: #1c1c1e; padding: 4px; border-radius: 20px; display: flex; gap: 5px; cursor: pointer; }
+        .toggle-opt { padding: 8px 18px; border-radius: 15px; font-size: 14px; color: #888; transition: 0.3s; font-weight: 500; }
+        .toggle-opt.active { background: #3a3a3c; color: #fff; font-weight: bold; }
+
+        #display { width: 100%; height: 80px; background: transparent; border: none; color: #fff; font-size: 64px; text-align: right; outline: none; margin-bottom: 20px; transition: 0.2s; font-weight: 300; }
+
+        /* THE DYNAMIC GRID */
+        .keypad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; transition: 0.3s; }
+        .calculator.sci-mode .keypad { grid-template-columns: repeat(5, 1fr); }
+
+        .sci-btn { display: none; background: #212121; color: #fff; font-size: 16px; }
+        .calculator.sci-mode .sci-btn { display: flex; } /* Scientific buttons sirf tab dikhenge jab mode on hoga */
+
+        /* THE VIP ANIMATION ENGINE */
+        button { border: none; border-radius: 50%; font-size: 26px; cursor: pointer; aspect-ratio: 1; display: flex; justify-content: center; align-items: center; transition: transform 0.1s cubic-bezier(0.0, 0.0, 0.2, 1), filter 0.2s; }
+        button:active { transform: scale(0.75); filter: brightness(1.5); } /* PROPER DABEGA AUR GLOW KAREGA */
+
+        .btn-dark { background: #333; color: #fff; }
+        .btn-gray { background: #a5a5a5; color: #000; font-size: 22px; }
+        .btn-orange { background: #ff9f0a; color: #fff; font-size: 30px; }
+        .btn-zero { grid-column: span 2; aspect-ratio: auto; border-radius: 40px; justify-content: flex-start; padding-left: 30px; }
+    </style>
+</head>
+<body>
+
+<div class="calculator" id="calcBox">
+    <div class="header">
+        <div class="toggle-btn" onclick="toggleMode()">
+            <div class="toggle-opt active" id="optSimple">Simple</div>
+            <div class="toggle-opt" id="optSci">Scientific</div>
+        </div>
+    </div>
+
+    <input type="text" id="display" disabled value="0">
+    
+    <div class="keypad">
+        <button class="sci-btn" onclick="sciFunc('sin')">sin</button>
+        <button class="btn-gray" onclick="clearDisplay()">AC</button>
+        <button class="btn-gray" onclick="toggleSign()">+/-</button>
+        <button class="btn-gray" onclick="calculate('percent')">%</button>
+        <button class="btn-orange" onclick="appendValue('/')">÷</button>
+
+        <button class="sci-btn" onclick="sciFunc('cos')">cos</button>
+        <button class="btn-dark" onclick="appendValue('7')">7</button>
+        <button class="btn-dark" onclick="appendValue('8')">8</button>
+        <button class="btn-dark" onclick="appendValue('9')">9</button>
+        <button class="btn-orange" onclick="appendValue('*')">×</button>
+
+        <button class="sci-btn" onclick="sciFunc('tan')">tan</button>
+        <button class="btn-dark" onclick="appendValue('4')">4</button>
+        <button class="btn-dark" onclick="appendValue('5')">5</button>
+        <button class="btn-dark" onclick="appendValue('6')">6</button>
+        <button class="btn-orange" onclick="appendValue('-')">−</button>
+
+        <button class="sci-btn" onclick="sciFunc('sqrt')">√</button>
+        <button class="btn-dark" onclick="appendValue('1')">1</button>
+        <button class="btn-dark" onclick="appendValue('2')">2</button>
+        <button class="btn-dark" onclick="appendValue('3')">3</button>
+        <button class="btn-orange" onclick="appendValue('+')">+</button>
+
+        <button class="sci-btn" onclick="sciFunc('log')">log</button>
+        <button class="btn-dark btn-zero" onclick="appendValue('0')">0</button>
+        <button class="btn-dark" onclick="appendValue('.')">.</button>
+        <button class="btn-orange" onclick="calculate()">=</button>
+    </div>
+</div>
+
+<script>
+    const display = document.getElementById('display');
+    const calcBox = document.getElementById('calcBox');
+    const optSimple = document.getElementById('optSimple');
+    const optSci = document.getElementById('optSci');
+    let isSciMode = false;
+
+    // Mode Toggle Logic
+    function toggleMode() {
+        isSciMode = !isSciMode;
+        if(isSciMode) {
+            calcBox.classList.add('sci-mode');
+            optSci.classList.add('active');
+            optSimple.classList.remove('active');
+        } else {
+            calcBox.classList.remove('sci-mode');
+            optSimple.classList.add('active');
+            optSci.classList.remove('active');
+        }
+    }
+
+    // Calculator Logic
+    function appendValue(val) {
+        if(display.value === '0' && val !== '.') display.value = val;
+        else display.value += val;
+        adjustFontSize();
+    }
+
+    function clearDisplay() {
+        display.value = '0';
+        adjustFontSize();
+    }
+
+    function calculate(action) {
+        try {
+            if(action === 'percent') {
+                display.value = (parseFloat(display.value) / 100).toString();
+            } else {
+                display.value = eval(display.value);
+            }
+            adjustFontSize();
+        } catch (e) {
+            display.value = 'Error';
+        }
+    }
+
+    function sciFunc(func) {
+        let val = parseFloat(display.value) || 0;
+        let res = 0;
+        switch(func) {
+            case 'sin': res = Math.sin(val * Math.PI / 180); break;
+            case 'cos': res = Math.cos(val * Math.PI / 180); break;
+            case 'tan': res = Math.tan(val * Math.PI / 180); break;
+            case 'sqrt': res = Math.sqrt(val); break;
+            case 'log': res = Math.log10(val); break;
+        }
+        display.value = parseFloat(res.toFixed(5));
+        adjustFontSize();
+    }
+
+    function toggleSign() {
+        if(display.value !== '0' && display.value !== 'Error') {
+            display.value = (parseFloat(display.value) * -1).toString();
+        }
+    }
+
+    function adjustFontSize() {
+        const len = display.value.length;
+        if (len > 9) display.style.fontSize = "35px";
+        else if (len > 6) display.style.fontSize = "45px";
+        else display.style.fontSize = "64px";
+    }
+</script>
+</body>
+</html>

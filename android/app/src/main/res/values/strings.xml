@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Umer Calculator</string>
+    <string name="title_activity_main">Umer Calculator</string>
+    <string name="package_name">com.umer.calculator</string>
+    <string name="custom_url_scheme">com.umer.calculator</string>
+</resources>
