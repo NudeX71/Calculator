@@ -8,8 +8,8 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
         body { background-color: #000; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         
-        /* THE SHAPE-SHIFTING CONTAINER */
-        .calculator { width: 330px; background: #000; padding: 20px; border-radius: 35px; border: 1px solid #333; box-shadow: 0 10px 40px rgba(0, 255, 0, 0.05); transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
+        /* THE SHAPE-SHIFTING CONTAINER (BORDER REMOVED) */
+        .calculator { width: 330px; background: #000; padding: 20px; border-radius: 35px; border: none; box-shadow: 0 10px 40px rgba(0, 255, 0, 0.05); transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
         .calculator.sci-mode { width: 450px; } /* Jab switch on hoga toh proper expand hoga */
 
         /* THE TOGGLE SWITCH */
